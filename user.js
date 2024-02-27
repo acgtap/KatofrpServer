@@ -162,7 +162,7 @@ export default (io) => {
     } else {
       send('user:verifyPro', {
         status: false,
-        message: 'You are not a pro'
+        message: '验证密钥失败~'
       })
     }
   }
@@ -201,10 +201,12 @@ export default (io) => {
   const servercheck = function (payload,callback) {
     const server=payload.server
     if(serverList[server]){
+      console.log('server ',serverList[server])
       callback({
         server:server,
         count:serverList[server].length
       })
+
     }else{
       callback({
         server:server,
