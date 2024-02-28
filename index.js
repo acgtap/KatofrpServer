@@ -20,12 +20,12 @@ const onConnection = (socket) => {
   socket.on('server:leave', serverleave)
   socket.on('server:check', servercheck)
   const allSockets = io.sockets.sockets.size
-  socket.emit('user:allUser', allSockets)
+  io.emit('user:allUser', allSockets)
 }
 
 io.on('connection', onConnection)
 io.on('disconnect', (socket) => {
   console.log('disconnect ', socket.id)
   const allSockets = io.sockets.sockets.size
-  socket.emit('user:allUser', allSockets)
+  io.emit('user:allUser', allSockets)
 })
