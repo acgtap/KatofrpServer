@@ -21,11 +21,11 @@ const onConnection = (socket) => {
   socket.on('server:check', servercheck)
   const allSockets = io.sockets.sockets.size
   io.emit('user:allUser', allSockets)
+  socket.on("disconnect", (reason) => {
+    console.log('disconnect', reason)
+    const allSockets = io.sockets.sockets.size
+    io.emit('user:allUser', allSockets)
+  });
 }
 
 io.on('connection', onConnection)
-io.on('disconnect', (socket) => {
-  console.log('disconnect ', socket.id)
-  const allSockets = io.sockets.sockets.size
-  io.emit('user:allUser', allSockets)
-})
