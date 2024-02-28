@@ -12,20 +12,24 @@ const { login, getAllUser, verifyPro, serverjoin, serverleave, servercheck } =
   user(io)
 
 const onConnection = (socket) => {
-  console.log('new ', socket.id)
-  socket.on('user:login', login)
-  socket.on('user:getAllUser', getAllUser)
-  socket.on('user:verifyPro', verifyPro)
-  socket.on('server:join', serverjoin)
-  socket.on('server:leave', serverleave)
-  socket.on('server:check', servercheck)
-  const allSockets = io.sockets.sockets.size
-  io.emit('user:allUser', allSockets)
-  socket.on("disconnect", (reason) => {
-    console.log('disconnect', reason)
+  try {
+    console.log('new ', socket.id)
+    socket.on('user:login', login)
+    socket.on('user:getAllUser', getAllUser)
+    socket.on('user:verifyPro', verifyPro)
+    socket.on('server:join', serverjoin)
+    socket.on('server:leave', serverleave)
+    socket.on('server:check', servercheck)
     const allSockets = io.sockets.sockets.size
     io.emit('user:allUser', allSockets)
-  });
+    socket.on('disconnect', (reason) => {
+      console.log('disconnect', reason)
+      const allSockets = io.sockets.sockets.size
+      io.emit('user:allUser', allSockets)
+    })
+  } catch (error) {
+    console.log('error', error)
+  }
 }
 
 io.on('connection', onConnection)
