@@ -24,3 +24,8 @@ const onConnection = (socket) => {
 }
 
 io.on('connection', onConnection)
+io.on('disconnect', (socket) => {
+  console.log('disconnect ', socket.id)
+  const allSockets = io.sockets.sockets.size
+  socket.emit('user:allUser', allSockets)
+})
