@@ -81,7 +81,9 @@ export default (io) => {
       msg,
       nickname,
       isPro,
-      outtime
+      outtime,
+      social_uid,
+      type,
     } = payload
     knex('user')
       .insert({
@@ -96,7 +98,7 @@ export default (io) => {
         social_uid: social_uid,
         type: type,
         isPro: isPro,
-        outtime: ''
+        outtime: outtime?outtime:''
       })
       .then((data) => {
         console.log('insert user success', data)

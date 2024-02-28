@@ -23,7 +23,7 @@ const onConnection = (socket) => {
     const allSockets = io.sockets.sockets.size
     io.emit('user:allUser', allSockets)
     socket.on('disconnect', (reason) => {
-      console.log('disconnect', reason)
+      console.log('disconnect', reason,'socket ', socket.id)
       const allSockets = io.sockets.sockets.size
       io.emit('user:allUser', allSockets)
     })
