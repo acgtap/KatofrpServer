@@ -8,7 +8,7 @@ const io = new Server(port, {
 console.log(`Server running on port ${port}`)
 
 import user from './user.js'
-const { login, getAllUser, verifyPro, serverjoin, serverleave, servercheck } =
+const { login, getAllUser, verifyPro, serverjoin, serverleave, servercheck,serverleaveAll } =
   user(io)
 
 const onConnection = (socket) => {
@@ -26,6 +26,7 @@ const onConnection = (socket) => {
       console.log('disconnect', reason,'socket ', socket.id)
       const allSockets = io.sockets.sockets.size
       io.emit('user:allUser', allSockets)
+      serverleaveAll({ socket_id: socket.id})
     })
   } catch (error) {
     console.log('error', error)

@@ -9,8 +9,8 @@ export default (io) => {
   }
   /**
    * 登录落地
-   * @param {*} payload 
-   * @returns 
+   * @param {*} payload
+   * @returns
    */
   const login = function (payload) {
     // {
@@ -50,7 +50,7 @@ export default (io) => {
             status: true,
             message: '你的Pro会员已过期'
           })
-        }else{
+        } else {
           send('user:login', {
             isPro: data[0].isPro,
             outTime: data[0].outtime,
@@ -58,7 +58,6 @@ export default (io) => {
             message: '你是个PRO会员'
           })
         }
-        
       } else {
         console.log('user not exist')
         // insert user by payload
@@ -68,7 +67,7 @@ export default (io) => {
   }
   /**
    * 添加用户
-   * @param {*} payload 
+   * @param {*} payload
    */
   const insertUser = function (payload) {
     const {
@@ -83,7 +82,7 @@ export default (io) => {
       isPro,
       outtime,
       social_uid,
-      type,
+      type
     } = payload
     knex('user')
       .insert({
@@ -98,7 +97,7 @@ export default (io) => {
         social_uid: social_uid,
         type: type,
         isPro: isPro,
-        outtime: outtime?outtime:''
+        outtime: outtime ? outtime : ''
       })
       .then((data) => {
         console.log('insert user success', data)
@@ -125,8 +124,8 @@ export default (io) => {
   }
   /**
    * 验证Pro
-   * @param {*} payload 
-   * @returns 
+   * @param {*} payload
+   * @returns
    */
   const verifyPro = function (payload) {
     console.log('revd user:verifyPro', payload)
@@ -171,51 +170,60 @@ export default (io) => {
   let serverList = {}
   /**
    * 加入服务器
-   * @param {*} payload 
+   * @param {*} payload
    */
   const serverjoin = function (payload) {
-    const {server,social_uid}=payload
-    if(!serverList[server]){
-      serverList[server]=[]
+    console.log('serverjoin ', payload)
+    const { server,  socket_id } = payload
+    if (!serverList[server]) {
+      serverList[server] = []
     }
-    if(serverList[server].findIndex(item=>item===social_uid)===-1){
-      serverList[server].push(social_uid)
+    if (serverList[server].findIndex((item) => item === socket_id) === -1) {
+      serverList[server].push(socket_id)
     }
   }
   /**
    * 退出服务器
-   * @param {*} payload 
+   * @param {*} payload
    */
   const serverleave = function (payload) {
-    const {server,social_uid}=payload
-    if(serverList[server]){
-      let index=serverList[server].findIndex(item=>item===social_uid)
-      if(index!==-1){
-        serverList[server].splice(index,1)
+    console.log('serverleave ', payload)
+    const { server, socket_id } = payload
+    if (serverList[server]) {
+      let index = serverList[server].findIndex((item) => item === socket_id)
+      if (index !== -1) {
+        serverList[server].splice(index, 1)
       }
     }
   }
   /**
    * 服务器获取在线人数
-   * @param {*} payload 
-   * @param {*} callback 
+   * @param {*} payload
+   * @param {*} callback
    */
-  const servercheck = function (payload,callback) {
-    const server=payload.server
-    if(serverList[server]){
-      console.log('server ',serverList[server])
+  const servercheck = function (payload, callback) {
+    const server = payload.server
+    if (serverList[server]) {
+      console.log('server ', serverList[server])
       callback({
-        server:server,
-        count:serverList[server].length
+        server: server,
+        count: serverList[server].length
       })
-
-    }else{
+    } else {
       callback({
-        server:server,
-        count:0
+        server: server,
+        count: 0
       })
     }
-
+  }
+  const serverleaveAll = function (payload) {
+    const { socket_id } = payload
+    for (let key in serverList) {
+      let index = serverList[key].findIndex((item) => item === socket_id)
+      if (index !== -1) {
+        serverList[key].splice(index, 1)
+      }
+    }
   }
 
   return {
@@ -224,6 +232,7 @@ export default (io) => {
     verifyPro,
     serverjoin,
     serverleave,
-    servercheck
+    servercheck,
+    serverleaveAll
   }
 }
