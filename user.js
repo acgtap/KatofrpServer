@@ -2,9 +2,8 @@ import knex from './db.js'
 import cardInc from './card.js'
 
 export default (io) => {
-  const send = function (event, data) {
-    const socket = this
-    io.emit(event, data)
+  const send = function (socket, event, data) {
+    socket.emit(event, data)
     console.log('send', event, data)
   }
   /**
@@ -31,7 +30,7 @@ export default (io) => {
     const { social_uid, type } = payload
     if (!social_uid || !type) {
       console.log('login infomation error')
-      send('user:login', {
+      send(socket, 'user:login', {
         status: false,
         message: 'login infomation error'
       })
@@ -44,14 +43,14 @@ export default (io) => {
         let outtime = new Date(data[0].outtime)
         //if outtime is less than now, user is not a pro
         if (outtime < new Date()) {
-          send('user:login', {
+          send(socket, 'user:login', {
             isPro: false,
             outTime: data[0].outtime,
             status: true,
             message: '你的Pro会员已过期'
           })
         } else {
-          send('user:login', {
+          send(socket, 'user:login', {
             isPro: data[0].isPro,
             outTime: data[0].outtime,
             status: true,
@@ -61,7 +60,7 @@ export default (io) => {
       } else {
         console.log('user not exist')
         // insert user by payload
-        insertUser(payload)
+        insertUser(socket, payload)
       }
     })
   }
@@ -69,7 +68,7 @@ export default (io) => {
    * 添加用户
    * @param {*} payload
    */
-  const insertUser = function (payload) {
+  const insertUser = function (socket, payload) {
     const {
       access_token,
       code,
@@ -101,7 +100,7 @@ export default (io) => {
       })
       .then((data) => {
         console.log('insert user success', data)
-        send('user:login', {
+        send(socket, 'user:login', {
           isPro: isPro,
           outTime: outtime,
           status: true,
@@ -133,7 +132,7 @@ export default (io) => {
     const { social_uid, type, card } = payload
     if (!social_uid || !type || !card) {
       console.log('verifyPro infomation error')
-      send('user:verifyPro', {
+      send(socket, 'user:verifyPro', {
         status: false,
         message: 'verifyPro infomation error'
       })
@@ -152,7 +151,7 @@ export default (io) => {
         })
         .then((data) => {
           console.log('update user success', data)
-          send('user:verifyPro', {
+          send(socket, 'user:verifyPro', {
             status: true,
             message: '恭喜你成为Pro会员'
           })
@@ -161,7 +160,7 @@ export default (io) => {
           console.log('update user error', err)
         })
     } else {
-      send('user:verifyPro', {
+      send(socket, 'user:verifyPro', {
         status: false,
         message: '验证密钥失败~'
       })
@@ -174,7 +173,7 @@ export default (io) => {
    */
   const serverjoin = function (payload) {
     console.log('serverjoin ', payload)
-    const { server,  socket_id } = payload
+    const { server, socket_id } = payload
     if (!serverList[server]) {
       serverList[server] = []
     }
