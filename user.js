@@ -40,23 +40,35 @@ export default (io) => {
     user.then((data) => {
       if (data.length > 0) {
         console.log('user exist', data)
-        let outtime = new Date(data[0].outtime)
+        let outtime = new Date(parseInt(data[0].outtime))
         //if outtime is less than now, user is not a pro
-        if (outtime < new Date()) {
-          send(socket, 'user:login', {
-            isPro: false,
-            outTime: data[0].outtime,
-            status: true,
-            message: '你的Pro会员已过期'
-          })
-        } else {
+        if(data[0].isPro){
+          console.log('user is pro')
+          if (outtime < new Date()) {
+            send(socket, 'user:login', {
+              isPro: false,
+              outTime: data[0].outtime,
+              status: true,
+              message: '你的Pro会员已过期'
+            })
+          } else {
+            send(socket, 'user:login', {
+              isPro: data[0].isPro,
+              outTime: data[0].outtime,
+              status: true,
+              message: '你是个PRO会员'
+            })
+          }
+        }else{
+          //不是pro
           send(socket, 'user:login', {
             isPro: data[0].isPro,
             outTime: data[0].outtime,
             status: true,
-            message: '你是个PRO会员'
+            message: '你不是Pro会员'
           })
         }
+        
       } else {
         console.log('user not exist')
         // insert user by payload
