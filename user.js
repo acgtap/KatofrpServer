@@ -44,6 +44,9 @@ export default (io) => {
         //if outtime is less than now, user is not a pro
         if(data[0].isPro){
           console.log('user is pro')
+          if(data[0].outtime == ''){
+            console.log('outtime is null') 
+          }
           if (outtime < new Date()) {
             send(socket, 'user:login', {
               isPro: false,
