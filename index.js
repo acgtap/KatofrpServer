@@ -69,6 +69,10 @@ app.post('/pay', function (req, res) {
   console.log(req.body)
   let pay = req.body.data.order
   let {custom_order_id,total_amount} = pay
+  if(!custom_order_id || !total_amount){
+    res.send({"ec":200,"em":""})
+    return
+  }
   //从数据库中查询订单
   knex('order').where('payid',custom_order_id).then((data)=>{
     console.log('data',data)
