@@ -1,5 +1,5 @@
 import { Server } from 'socket.io'
-const port = 8002
+const port = 8000
 const io = new Server(port, {
   cors: {
     origin: '*'
