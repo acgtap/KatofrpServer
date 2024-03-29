@@ -1,10 +1,13 @@
 import knex from 'knex';
 const db = knex({
-  client: 'sqlite3', // or 'better-sqlite3'
+  client: 'mysql',
   connection: {
-    filename: "./mydb.sqlite"
-  },
-  useNullAsDefault: true
+    host : '127.0.0.1',
+    port : 3306,
+    user : 'frps',
+    password : 'frps',
+    database : 'frps'
+  }
 });
 
 // {

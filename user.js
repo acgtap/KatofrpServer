@@ -42,10 +42,10 @@ export default (io) => {
         console.log('user exist', data)
         let outtime = new Date(parseInt(data[0].outtime))
         //if outtime is less than now, user is not a pro
-        if(data[0].isPro){
+        if (data[0].isPro) {
           console.log('user is pro')
-          if(data[0].outtime == ''){
-            console.log('outtime is null') 
+          if (data[0].outtime == '') {
+            console.log('outtime is null')
           }
           if (outtime < new Date()) {
             send(socket, 'user:login', {
@@ -62,7 +62,7 @@ export default (io) => {
               message: '你是个PRO会员'
             })
           }
-        }else{
+        } else {
           //不是pro
           send(socket, 'user:login', {
             isPro: data[0].isPro,
@@ -71,7 +71,6 @@ export default (io) => {
             message: '你不是Pro会员'
           })
         }
-        
       } else {
         console.log('user not exist')
         // insert user by payload
@@ -181,6 +180,65 @@ export default (io) => {
       })
     }
   }
+
+  const addPro = function (payload) {
+    console.log('revd add user:verifyPro', payload)
+    const { social_uid, count } = payload
+    const { order, pay, custom_order_id } = payload
+    //count为付款金额,5元一月，获取对应月数
+    let month = count / 5
+    //保证month为整数，且最低为1
+    month = Math.ceil(month) > 0 ? Math.ceil(month) : 1
+
+    //verify card is exist in card array
+    //update user isPro and outtime
+    //获取当前用户outtime，如果未过期就增加
+    knex('user')
+      .where({ social_uid: social_uid })
+      .then((data) => {
+        let out = []
+        if (data[0].outtime) {
+          //判断时间是否落后于当前时间
+          if (new Date(parseInt(data[0].outtime)) < new Date()) {
+            out = new Date().setMonth(new Date().getMonth() + month)
+          } else {
+            let t = parseInt(data[0].outtime)
+            out = new Date(t).setMonth(new Date(t).getMonth() + month)
+          }
+        } else {
+          out = new Date().setMonth(new Date().getMonth() + month)
+        }
+        out = parseInt(out)
+        let t = parseInt(data[0].outtime)
+        console.log(
+          'user outtime',
+          out,
+          new Date(t).setMonth(new Date(t).getMonth() + month).toLocaleString()
+        )
+        knex('user')
+          .where({ social_uid: social_uid })
+          .update({
+            isPro: true,
+            outtime: out
+          })
+          .then((data) => {
+            console.log('update user success', data)
+
+            //向指定socketid发送消息
+            io.to(order.socketid).emit('pay', {
+              custom_order_id: custom_order_id,
+              count: count,
+              pay: pay,
+              order: order,
+              outtime: out
+            })
+          })
+          .catch((err) => {
+            console.log('update user error', err)
+          })
+      })
+  }
+
   let serverList = {}
   /**
    * 加入服务器
@@ -247,6 +305,7 @@ export default (io) => {
     serverjoin,
     serverleave,
     servercheck,
-    serverleaveAll
+    serverleaveAll,
+    addPro
   }
 }
